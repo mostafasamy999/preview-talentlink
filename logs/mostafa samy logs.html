@@ -1,0 +1,191 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>TalentLink360 Usage Log</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one report column. Answer first, then days, errors, APIs, and the full list of opens. */
+:root {
+  --bg: #f5f7f8; --surface: #ffffff; --ink: #17242b; --muted: #5a6b74; --line: #d9e1e5;
+  --accent: #0f6b7a; --accent-soft: #d5e9ed; --bad: #b3322a; --bad-soft: #fae6e3;
+  --sans: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11191e; --surface: #18232a; --ink: #e7eef1; --muted: #9aabb4; --line: #2d3b43;
+    --accent: #5cc0d0; --accent-soft: #1d3d45; --bad: #f08a80; --bad-soft: #43221f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11191e; --surface: #18232a; --ink: #e7eef1; --muted: #9aabb4; --line: #2d3b43;
+  --accent: #5cc0d0; --accent-soft: #1d3d45; --bad: #f08a80; --bad-soft: #43221f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--sans); }
+.page {
+  max-width: 920px; margin: 0 auto; display: grid; gap: 36px; padding-block: 40px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header { display: grid; gap: 10px; }
+.source { font: 400 12.5px/1.5 var(--mono); color: var(--muted); margin: 0; }
+h1 { font-size: clamp(25px, 4.2vw, 34px); line-height: 1.2; font-weight: 700; margin: 0; max-width: 24em; text-wrap: balance; }
+h2 { font-size: 18px; font-weight: 600; margin: 0; }
+section { display: grid; gap: 12px; min-width: 0; }
+.note { color: var(--muted); font-size: 13.5px; margin: 0; max-width: 68ch; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.kpi { padding: 16px 18px; display: grid; gap: 2px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+.kpi:nth-child(3n+1) { border-left: 0; }
+.kpi:nth-child(-n+3) { border-top: 0; }
+.kpi b { font: 500 26px/1.2 var(--mono); }
+.kpi span { font-size: 13px; color: var(--muted); }
+.kpi.bad b { color: var(--bad); }
+.scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { padding: 8px 12px; text-align: right; border-top: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+thead th { border-top: 0; font-size: 12px; font-weight: 600; color: var(--muted); }
+th:first-child, td:first-child { text-align: left; }
+td.left, th.left { text-align: left; }
+td.wrap { white-space: normal; min-width: 210px; color: var(--muted); }
+td.num { font-family: var(--mono); font-size: 13px; }
+tfoot td { font-weight: 600; }
+tr.day th { background: var(--accent-soft); color: var(--ink); font-size: 13px; font-weight: 600; text-align: left; padding-block: 6px; }
+tr.has-err td.err { color: var(--bad); font-weight: 500; }
+tr.has-err td.err span { background: var(--bad-soft); border-radius: 3px; padding: 1px 7px; }
+.bars { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; display: grid; gap: 7px; }
+.bar { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 12px; align-items: center; font-size: 13.5px; }
+.bar .name { overflow-wrap: anywhere; }
+.track { display: flex; align-items: center; gap: 8px; }
+.fill { height: 14px; background: var(--accent); border-radius: 2px; }
+.val { font: 500 13px var(--mono); }
+.bar.rest .name, .bar.rest .val { color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.chips li { background: var(--accent-soft); border-radius: 3px; padding: 3px 9px; font-size: 13px; }
+.chips b { font: 500 13px var(--mono); margin-left: 4px; }
+@media (max-width: 560px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi { border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+  .kpi:nth-child(odd) { border-left: 0; }
+  .kpi:nth-child(-n+3) { border-top: 1px solid var(--line); }
+  .kpi:nth-child(-n+2) { border-top: 0; }
+  .bar { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+</style>
+
+<main class="page">
+  <header>
+    <p class="source">TalentLink360 device log, Nov 4 15:37 to Nov 8 12:09, 2026 (39,962 entries)</p>
+    <h1>The app was open for 23 minutes across 28 opens, and 304 of 314 API calls succeeded</h1>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><b>3</b><span>Days used (Nov 4, 5, 8)</span></div>
+    <div class="kpi"><b>28</b><span>Opens: 9 fresh starts, 19 from background</span></div>
+    <div class="kpi"><b>23m 20s</b><span>Total time open</span></div>
+    <div class="kpi"><b>4h 08m</b><span>Total time in background</span></div>
+    <div class="kpi"><b>314</b><span>API calls to 25 different APIs</span></div>
+    <div class="kpi bad"><b>16</b><span>Errors</span></div>
+  </div>
+
+  <section>
+    <h2>Each day</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Day</th><th>Fresh starts</th><th>From background</th><th>Time open</th><th>Went to background</th><th>Background time</th><th>Screens</th><th>API calls</th><th>Errors</th></tr></thead>
+        <tbody>
+          <tr><td>Nov 4</td><td class="num">4</td><td class="num">8</td><td class="num">4m 33s</td><td class="num">12</td><td class="num">1h 00m</td><td class="num">29</td><td class="num">131</td><td class="num">6</td></tr>
+          <tr><td>Nov 5</td><td class="num">3</td><td class="num">4</td><td class="num">11m 51s</td><td class="num">7</td><td class="num">11m 10s</td><td class="num">25</td><td class="num">52</td><td class="num">6</td></tr>
+          <tr><td>Nov 8</td><td class="num">2</td><td class="num">7</td><td class="num">6m 57s</td><td class="num">8</td><td class="num">2h 56m</td><td class="num">41</td><td class="num">131</td><td class="num">4</td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td class="num">9</td><td class="num">19</td><td class="num">23m 20s</td><td class="num">27</td><td class="num">4h 08m</td><td class="num">95</td><td class="num">314</td><td class="num">16</td></tr></tfoot>
+      </table>
+    </div>
+    <p class="note">Background time counts only the time the log shows the app still running. The log does not record when the app was closed, so time between a close and the next fresh start is left out.</p>
+  </section>
+
+  <section>
+    <h2>Errors</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Error</th><th>Nov 4</th><th>Nov 5</th><th>Nov 8</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>No internet connection (API call failed)</td><td class="num">2</td><td class="num">5</td><td class="num">1</td><td class="num">8</td></tr>
+          <tr><td>Null check failed while downloading an image</td><td class="num">2</td><td class="num">1</td><td class="num">3</td><td class="num">6</td></tr>
+          <tr><td>"Error in request format!" from the server</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num">2</td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td class="num">6</td><td class="num">6</td><td class="num">4</td><td class="num">16</td></tr></tfoot>
+      </table>
+    </div>
+    <p class="note">The two request format errors came from <code>GetSplashInfoV1</code> and <code>GetSplashInfo</code> on the first launch. Both returned HTTP 200 with status 500 in the response body. The app also logs some failures a second time, and those repeats are counted once here.</p>
+  </section>
+
+  <section>
+    <h2>Most called APIs</h2>
+    <div class="bars">
+      <div class="bar"><span class="name">RefreshToken</span><span class="track"><span class="fill" style="width:80%"></span><span class="val">48</span></span></div>
+      <div class="bar"><span class="name">GetHomeDataForDashboard</span><span class="track"><span class="fill" style="width:80%"></span><span class="val">48</span></span></div>
+      <div class="bar"><span class="name">GetNotificationMasterData</span><span class="track"><span class="fill" style="width:70%"></span><span class="val">42</span></span></div>
+      <div class="bar"><span class="name">GetSplashInfoV1</span><span class="track"><span class="fill" style="width:55%"></span><span class="val">33</span></span></div>
+      <div class="bar"><span class="name">GetLeaveInCalendarMobile</span><span class="track"><span class="fill" style="width:35%"></span><span class="val">21</span></span></div>
+      <div class="bar"><span class="name">ESSPermission</span><span class="track"><span class="fill" style="width:30%"></span><span class="val">18</span></span></div>
+      <div class="bar"><span class="name">GetSplashInfo</span><span class="track"><span class="fill" style="width:25%"></span><span class="val">15</span></span></div>
+      <div class="bar"><span class="name">GetLeaveCountInCalendarMobile</span><span class="track"><span class="fill" style="width:25%"></span><span class="val">15</span></span></div>
+      <div class="bar"><span class="name">GetGrossSalaryAndCurrency</span><span class="track"><span class="fill" style="width:23.33%"></span><span class="val">14</span></span></div>
+      <div class="bar"><span class="name">GetLastRequestsForDashboard</span><span class="track"><span class="fill" style="width:23.33%"></span><span class="val">14</span></span></div>
+      <div class="bar"><span class="name">MarkNotificationMasterAsSeen</span><span class="track"><span class="fill" style="width:18.33%"></span><span class="val">11</span></span></div>
+      <div class="bar rest"><span class="name">The other 14 APIs, combined</span><span class="track"><span class="fill" style="width:58.33%;opacity:.4"></span><span class="val">35</span></span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Screens opened</h2>
+    <ul class="chips">
+      <li>Dialog<b>40</b></li><li>splash<b>15</b></li><li>main<b>14</b></li><li>offline<b>9</b></li><li>camera<b>9</b></li><li>leave<b>3</b></li><li>visitDetail<b>2</b></li><li>login<b>1</b></li><li>leadBalance<b>1</b></li><li>reportIssue<b>1</b></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Every open</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Time</th><th class="left">How it opened</th><th>Time open</th><th class="left">Screens</th><th>API calls</th><th>Errors</th></tr></thead>
+        <tbody>
+          <tr class="day"><th colspan="6">Nov 4</th></tr>
+          <tr class="has-err"><td class="num">15:37</td><td class="left">Fresh start</td><td class="num">1m 25s</td><td class="left wrap">splash, login, main, 1 dialog</td><td class="num">20</td><td class="num err"><span>2</span></td></tr>
+          <tr><td class="num">15:40</td><td class="left">Fresh start</td><td class="num">29s</td><td class="left wrap">splash, main, leave, 1 dialog</td><td class="num">23</td><td class="num err">0</td></tr>
+          <tr><td class="num">15:41</td><td class="left">From background</td><td class="num">2s</td><td class="left wrap">None</td><td class="num">0</td><td class="num err">0</td></tr>
+          <tr><td class="num">15:43</td><td class="left">From background</td><td class="num">2s</td><td class="left wrap">None</td><td class="num">0</td><td class="num err">0</td></tr>
+          <tr class="has-err"><td class="num">15:57</td><td class="left">From background</td><td class="num">1m 11s</td><td class="left wrap">splash, main</td><td class="num">15</td><td class="num err"><span>1</span></td></tr>
+          <tr><td class="num">16:52</td><td class="left">Fresh start</td><td class="num">8s</td><td class="left wrap">splash, main</td><td class="num">14</td><td class="num err">0</td></tr>
+          <tr><td class="num">16:52</td><td class="left">From background</td><td class="num">3s</td><td class="left wrap">None</td><td class="num">2</td><td class="num err">0</td></tr>
+          <tr><td class="num">16:54</td><td class="left">From background</td><td class="num">11s</td><td class="left wrap">leave, 2 dialogs</td><td class="num">11</td><td class="num err">0</td></tr>
+          <tr><td class="num">17:04</td><td class="left">Fresh start</td><td class="num">20s</td><td class="left wrap">splash, main, leadBalance</td><td class="num">17</td><td class="num err">0</td></tr>
+          <tr><td class="num">17:08</td><td class="left">From background</td><td class="num">4s</td><td class="left wrap">None</td><td class="num">4</td><td class="num err">0</td></tr>
+          <tr class="has-err"><td class="num">17:36</td><td class="left">From background</td><td class="num">4s</td><td class="left wrap">splash</td><td class="num">4</td><td class="num err"><span>1</span></td></tr>
+          <tr><td class="num">17:40</td><td class="left">From background</td><td class="num">32s</td><td class="left wrap">camera, 5 dialogs</td><td class="num">18</td><td class="num err">0</td></tr>
+          <tr class="day"><th colspan="6">Nov 5</th></tr>
+          <tr><td class="num">07:46</td><td class="left">Fresh start</td><td class="num">29s</td><td class="left wrap">splash, main, camera, 4 dialogs</td><td class="num">20</td><td class="num err">0</td></tr>
+          <tr><td class="num">08:10</td><td class="left">Fresh start</td><td class="num">5m 11s</td><td class="left wrap">splash, main, visitDetail ×2</td><td class="num">20</td><td class="num err">0</td></tr>
+          <tr><td class="num">08:16</td><td class="left">From background</td><td class="num">4s</td><td class="left wrap">None</td><td class="num">2</td><td class="num err">0</td></tr>
+          <tr><td class="num">08:18</td><td class="left">From background</td><td class="num">5m 40s</td><td class="left wrap">camera, 4 dialogs</td><td class="num">5</td><td class="num err">0</td></tr>
+          <tr><td class="num">08:32</td><td class="left">From background</td><td class="num">2s</td><td class="left wrap">None</td><td class="num">0</td><td class="num err">0</td></tr>
+          <tr class="has-err"><td class="num">16:11</td><td class="left">Fresh start</td><td class="num">6s</td><td class="left wrap">splash, offline, camera, 1 dialog</td><td class="num">4</td><td class="num err"><span>4</span></td></tr>
+          <tr class="has-err"><td class="num">16:11</td><td class="left">From background</td><td class="num">19s</td><td class="left wrap">camera, 3 dialogs</td><td class="num">1</td><td class="num err"><span>1</span></td></tr>
+          <tr class="day"><th colspan="6">Nov 8</th></tr>
+          <tr><td class="num">07:51</td><td class="left">Fresh start</td><td class="num">1m 16s</td><td class="left wrap">splash, main, camera ×4, 13 dialogs</td><td class="num">27</td><td class="num err">0</td></tr>
+          <tr><td class="num">09:07</td><td class="left">Fresh start</td><td class="num">2m 14s</td><td class="left wrap">splash, main</td><td class="num">17</td><td class="num err">0</td></tr>
+          <tr><td class="num">09:12</td><td class="left">From background</td><td class="num">1m 15s</td><td class="left wrap">leave, 1 dialog</td><td class="num">12</td><td class="num err">0</td></tr>
+          <tr><td class="num">09:37</td><td class="left">From background</td><td class="num">2s</td><td class="left wrap">None</td><td class="num">0</td><td class="num err">0</td></tr>
+          <tr><td class="num">09:57</td><td class="left">From background</td><td class="num">27s</td><td class="left wrap">splash, main</td><td class="num">16</td><td class="num err">0</td></tr>
+          <tr class="has-err"><td class="num">10:56</td><td class="left">From background</td><td class="num">19s</td><td class="left wrap">splash, main, 4 dialogs</td><td class="num">25</td><td class="num err"><span>1</span></td></tr>
+          <tr><td class="num">11:46</td><td class="left">From background</td><td class="num">17s</td><td class="left wrap">splash, main</td><td class="num">17</td><td class="num err">0</td></tr>
+          <tr class="has-err"><td class="num">12:08</td><td class="left">From background</td><td class="num">1m 06s</td><td class="left wrap">splash, main, reportIssue, 1 dialog</td><td class="num">16</td><td class="num err"><span>1</span></td></tr>
+          <tr><td class="num">12:09</td><td class="left">From background</td><td class="num">0s (log ends)</td><td class="left wrap">None</td><td class="num">0</td><td class="num err">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">While the app was in the background there were also 4 API calls, 5 errors and 9 screen changes, 8 of them to the offline screen. These are in the daily totals but not in this list.</p>
+  </section>
+</main>
+
+</body></html>
