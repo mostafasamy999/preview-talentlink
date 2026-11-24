@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — TalentLink 360</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #E3001B;
+    --brand-dark: #B80016;
+    --brand-soft: #FFF1F2;
+    --brand-soft-border: #F3C2C8;
+    --error: #C4001A;
+    --error-border: #D0021B;
+    --bg: #F6F7F9;
+    --surface: #FFFFFF;
+    --border: #D9DCE2;
+    --border-soft: #E4E6EB;
+    --text: #111318;
+    --text-2: #2A2D33;
+    --text-3: #5F636B;
+    --icon: #8A8F98;
+    --tabs-bg: #ECEEF2;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #E9EBEF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', system-ui, sans-serif;
+    color: var(--text);
+  }
+  a { color: var(--brand); text-decoration: none; }
+  a:hover { color: var(--brand-dark); }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ---------- Screen ---------- */
+  .screen {
+    width: 390px;
+    height: 844px;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+    border-radius: 36px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+    padding: 16px 24px 40px;
+    display: flex;
+    flex-direction: column;
+  }
+  @media (max-width: 430px) {
+    body { background: var(--bg); align-items: stretch; }
+    .screen { width: 100%; height: auto; min-height: 100vh; border-radius: 0; box-shadow: none; }
+  }
+  .bg-mark { position: absolute; right: -70px; top: -60px; opacity: .06; pointer-events: none; }
+
+  /* ---------- Language toggle ---------- */
+  .top-bar { position: relative; display: flex; align-items: center; justify-content: flex-end; height: 44px; }
+  .lang {
+    display: flex; padding: 3px; border-radius: 22px;
+    background: var(--surface); border: 1px solid var(--border-soft);
+  }
+  .lang button {
+    height: 32px; min-width: 48px; padding: 0 12px; border: 0; border-radius: 18px;
+    background: transparent; color: #3A3D44; font-size: 13px; font-weight: 600;
+  }
+  .lang button[aria-pressed="true"] { background: var(--brand); color: #fff; }
+
+  /* ---------- Brand ---------- */
+  .brand { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .wordmark { position: relative; }
+  .wordmark span:first-child {
+    display: block; font-size: 34px; font-weight: 700; line-height: 1;
+    letter-spacing: -.035em; white-space: nowrap;
+  }
+  .wordmark sup {
+    position: absolute; right: -30px; top: -10px;
+    font-size: 12px; font-weight: 700; color: var(--brand); line-height: 1;
+  }
+  .subtitle { margin: 12px 0 0; text-align: center; font-size: 14px; line-height: 1.5; color: var(--text-3); }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    margin-top: 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px; padding: 4px; border-radius: 14px; background: var(--tabs-bg);
+  }
+  .tab {
+    height: 44px; border: 0; border-radius: 11px; background: transparent; color: var(--text-3);
+    font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all .2s;
+  }
+  .tab[aria-selected="true"] { background: var(--surface); color: var(--brand); box-shadow: 0 2px 6px rgba(17,19,24,.10); }
+
+  /* ---------- Fields ---------- */
+  .fields { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field[hidden] { display: none; }
+  .box {
+    position: relative; height: 56px; border-radius: 14px; background: var(--surface);
+    border: 1.5px solid var(--border); box-shadow: 0 1px 2px rgba(17,19,24,.04);
+    display: flex; align-items: center; padding: 0 16px; gap: 12px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .box.has-action { padding-right: 6px; }
+  .box.has-prefix { padding-left: 12px; }
+  .box > .icon { flex: none; stroke: var(--icon); transition: stroke .2s; }
+  .box:focus-within { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(227,0,27,.12); }
+  .box:focus-within > .icon { stroke: var(--brand); }
+
+  .control { position: relative; flex: 1; height: 100%; }
+  .control label {
+    position: absolute; left: 0; top: 17px; font-size: 15px; font-weight: 400; color: var(--text-3);
+    line-height: 1.2; pointer-events: none; transition: all .18s ease;
+  }
+  .control input {
+    position: absolute; left: 0; right: 0; bottom: 7px; height: 24px; width: 100%;
+    padding: 0; border: 0; outline: none; background: transparent;
+    font-family: inherit; font-size: 15px; color: var(--text);
+  }
+  .control input::placeholder { color: transparent; }
+  .box:focus-within .control input::placeholder { color: #767B83; }
+  /* float the label when focused or filled */
+  .box:focus-within .control label,
+  .control input:not(:placeholder-shown) + label {
+    top: 8px; font-size: 11.5px; font-weight: 600;
+  }
+  .box:focus-within .control label { color: var(--brand); }
+  #li-code { letter-spacing: .06em; text-transform: uppercase; }
+  #li-phone { letter-spacing: .02em; }
+
+  /* error state */
+  .field.invalid .box { border-color: var(--error-border); box-shadow: 0 0 0 4px rgba(208,2,27,.10); }
+  .field.invalid .box > .icon { stroke: var(--error-border); }
+  .field.invalid .control label { color: var(--error); }
+  .error {
+    display: none; align-items: center; gap: 6px; padding-left: 4px; font-size: 12px; color: var(--error);
+  }
+  .field.invalid .error { display: flex; }
+
+  .country {
+    flex: none; height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 6px;
+    border: 0; background: transparent; font-size: 14px; font-weight: 600; color: var(--text);
+  }
+  .flag { width: 22px; height: 15px; border-radius: 3px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 0 0 1px #E1E3E8; }
+  .flag span { flex: 1; }
+  .divider { width: 1px; height: 28px; background: #E1E3E8; flex: none; }
+
+  .icon-btn {
+    flex: none; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent;
+    color: #6B6F76; display: flex; align-items: center; justify-content: center;
+  }
+  .icon-btn .eye-open { display: none; }
+  .icon-btn[aria-pressed="true"] .eye-open { display: block; }
+  .icon-btn[aria-pressed="true"] .eye-closed { display: none; }
+
+  /* ---------- Options row ---------- */
+  .options { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .remember { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-2); cursor: pointer; min-height: 44px; }
+  .remember input { width: 20px; height: 20px; margin: 0; accent-color: var(--brand); }
+  .forgot { font-size: 14px; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+
+  /* ---------- Actions ---------- */
+  #login-form { flex: 1; display: flex; flex-direction: column; }
+  .actions { margin-top: 20px; }
+  .action-row { display: flex; gap: 12px; }
+  .options a.forgot { padding: 0 4px; margin-right: -4px; }
+  .btn-primary {
+    flex: 1; height: 56px; border: 0; border-radius: 16px; background: var(--brand); color: #fff;
+    font-size: 16px; font-weight: 600; box-shadow: 0 8px 20px rgba(227,0,27,.25);
+  }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-bio {
+    flex: none; width: 56px; height: 56px; border-radius: 16px; border: 1.5px solid var(--brand-soft-border);
+    background: var(--brand-soft); color: var(--brand); display: flex; align-items: center; justify-content: center;
+  }
+  .signup { margin: auto 0 0; padding-top: 24px; text-align: center; font-size: 14px; color: var(--text-3); }
+  .signup a { font-weight: 600; }
+
+  /* ---------- Entrance animation ---------- */
+  .ln-in { animation: lnIn .55s cubic-bezier(.2,.8,.2,1) both; }
+  .d1{animation-delay:.05s}.d2{animation-delay:.12s}.d3{animation-delay:.19s}.d4{animation-delay:.26s}
+  .d5{animation-delay:.33s}.d6{animation-delay:.40s}.d7{animation-delay:.47s}
+  .ln-mark { animation: lnMark .6s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes lnIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes lnMark { from { opacity: 0; transform: scale(.6) rotate(-10deg); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .ln-in, .ln-mark { animation: none; } }
+</style>
+</head>
+<body>
+
+<main class="screen">
+  <svg class="bg-mark" width="230" height="290" viewBox="0 0 264 334" aria-hidden="true">
+    <polygon points="9,113 195,6 254,39 70,147" fill="#E3001B"/>
+    <polygon points="9,113 70,147 70,219 9,183" fill="#FF6200"/>
+    <polygon points="70,219 131,188 131,328 70,292" fill="#F5A11E"/>
+  </svg>
+
+  <div class="top-bar">
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" aria-pressed="true">EN</button>
+      <button type="button" aria-pressed="false">عربي</button>
+    </div>
+  </div>
+
+  <div class="brand">
+    <svg class="ln-mark" width="72" height="91" viewBox="0 0 264 334" role="img" aria-label="Talentlink">
+      <polygon points="9,113 195,6 254,39 70,147" fill="#E3001B"/>
+      <polygon points="9,113 70,147 70,219 9,183" fill="#FF6200"/>
+      <polygon points="70,219 131,188 131,328 70,292" fill="#F5A11E"/>
+    </svg>
+    <div class="wordmark ln-in d1">
+      <span>Talentlink</span><sup>360°</sup>
+    </div>
+  </div>
+
+  <p class="subtitle ln-in d2">Sign in to continue to your workspace.</p>
+
+  <div class="tabs ln-in d3" role="tablist" aria-label="Sign in with">
+    <button type="button" class="tab" role="tab" id="tab-email" aria-selected="true" aria-controls="f-email">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>
+      Email
+    </button>
+    <button type="button" class="tab" role="tab" id="tab-phone" aria-selected="false" aria-controls="f-phone">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18h2"/></svg>
+      Phone
+    </button>
+  </div>
+
+  <form id="login-form" novalidate>
+    <div class="fields">
+
+      <!-- Email -->
+      <div class="field ln-in d4" id="f-email" role="tabpanel" aria-labelledby="tab-email">
+        <div class="box">
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>
+          <div class="control">
+            <input id="li-email" name="email" type="email" autocomplete="email" placeholder="e.g. ahmed.ali@company.com" aria-describedby="err-email">
+            <label for="li-email">Work email</label>
+          </div>
+        </div>
+        <div class="error" id="err-email" role="alert"></div>
+      </div>
+
+      <!-- Phone -->
+      <div class="field" id="f-phone" role="tabpanel" aria-labelledby="tab-phone" hidden>
+        <div class="box has-prefix">
+          <button type="button" class="country" aria-label="Country code, Egypt +20">
+            <span class="flag" aria-hidden="true"><span style="background:#CE1126"></span><span style="background:#FFFFFF"></span><span style="background:#111111"></span></span>
+            +20
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B6F76" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <span class="divider" aria-hidden="true"></span>
+          <div class="control">
+            <input id="li-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="e.g. 10 1234 5678" aria-describedby="err-phone">
+            <label for="li-phone">Phone number</label>
+          </div>
+        </div>
+        <div class="error" id="err-phone" role="alert"></div>
+      </div>
+
+      <!-- Password -->
+      <div class="field ln-in d5" id="f-pw">
+        <div class="box has-action">
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+          <div class="control">
+            <input id="li-pw" name="password" type="password" autocomplete="current-password" placeholder="Min. 8 characters" aria-describedby="err-pw">
+            <label for="li-pw">Password</label>
+          </div>
+          <button type="button" class="icon-btn" id="toggle-pw" aria-label="Show password" aria-pressed="false">
+            <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+          </button>
+        </div>
+        <div class="error" id="err-pw" role="alert"></div>
+      </div>
+
+      <!-- Company code -->
+      <div class="field ln-in d6" id="f-code">
+        <div class="box">
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/><path d="M10 21v-3h4v3"/></svg>
+          <div class="control">
+            <input id="li-code" name="companyCode" type="text" autocapitalize="characters" placeholder="e.g. TL-1024" aria-describedby="err-code">
+            <label for="li-code">Company code</label>
+          </div>
+        </div>
+        <div class="error" id="err-code" role="alert"></div>
+      </div>
+    </div>
+
+    <div class="options ln-in d6">
+      <label class="remember"><input type="checkbox" name="remember" checked> Remember me</label>
+      <a href="#" class="forgot">Forgot password?</a>
+    </div>
+
+    <div class="actions ln-in d7">
+      <div class="action-row">
+        <button type="submit" class="btn-primary">Sign in</button>
+        <button type="button" class="btn-bio" aria-label="Sign in with fingerprint">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v4a8 8 0 0 1-1 4"/><path d="M8.5 12a3.5 3.5 0 0 1 7 0v2c0 1.5-.2 3-.7 4.3"/><path d="M5.5 15.5c.3-1 .5-2.2.5-3.5a6 6 0 0 1 10.4-4.1"/><path d="M18 12v1.5c0 1.8-.2 3.6-.6 5.2"/><path d="M3.6 9.5A9 9 0 0 1 20.5 9"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <p class="signup ln-in d7">Don't have an account? <a href="#">Sign up</a></p>
+  </form>
+</main>
+
+<script>
+  // Tabs: Email / Phone
+  const tabs = { email: document.getElementById('tab-email'), phone: document.getElementById('tab-phone') };
+  const panels = { email: document.getElementById('f-email'), phone: document.getElementById('f-phone') };
+  let mode = 'email';
+  function setMode(m) {
+    mode = m;
+    for (const k of ['email', 'phone']) {
+      tabs[k].setAttribute('aria-selected', String(k === m));
+      panels[k].hidden = k !== m;
+      panels[k].classList.remove('invalid');
+    }
+  }
+  tabs.email.addEventListener('click', () => setMode('email'));
+  tabs.phone.addEventListener('click', () => setMode('phone'));
+
+  // Language toggle (visual only)
+  document.querySelectorAll('.lang button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+    });
+  });
+
+  // Show / hide password
+  const pw = document.getElementById('li-pw');
+  const eye = document.getElementById('toggle-pw');
+  eye.addEventListener('click', () => {
+    const show = pw.type === 'password';
+    pw.type = show ? 'text' : 'password';
+    eye.setAttribute('aria-pressed', String(show));
+    eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  });
+
+  // Validation
+  const errIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>';
+  function setError(fieldId, errId, msg) {
+    const field = document.getElementById(fieldId);
+    const err = document.getElementById(errId);
+    field.classList.toggle('invalid', !!msg);
+    err.innerHTML = msg ? errIcon + msg : '';
+  }
+  // Clear a field's error as soon as the user types in it
+  [['li-email','f-email','err-email'], ['li-phone','f-phone','err-phone'], ['li-pw','f-pw','err-pw'], ['li-code','f-code','err-code']]
+    .forEach(([inp, f, e]) => document.getElementById(inp).addEventListener('input', () => setError(f, e, '')));
+
+  document.getElementById('login-form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const email = document.getElementById('li-email').value.trim();
+    const phone = document.getElementById('li-phone').value.trim();
+    const code = document.getElementById('li-code').value.trim();
+    let ok = true;
+
+    if (mode === 'email') {
+      if (!email) { setError('f-email', 'err-email', 'Email is required'); ok = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('f-email', 'err-email', 'Enter a valid email, e.g. ahmed.ali@company.com'); ok = false; }
+    } else {
+      if (!phone) { setError('f-phone', 'err-phone', 'Phone number is required'); ok = false; }
+      else if (phone.replace(/\D/g, '').length < 10) { setError('f-phone', 'err-phone', 'Enter 10 digits, e.g. 10 1234 5678'); ok = false; }
+    }
+    if (!pw.value) { setError('f-pw', 'err-pw', 'Password is required'); ok = false; }
+    if (!code) { setError('f-code', 'err-code', 'Company code is required'); ok = false; }
+
+    if (ok) {
+      // TODO: call your sign-in API here
+      console.log('Sign in', { mode, email, phone, companyCode: code.toUpperCase() });
+    }
+  });
+</script>
+</body>
+</html>
